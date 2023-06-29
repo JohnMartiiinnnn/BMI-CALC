@@ -1,0 +1,160 @@
+import os
+import datetime
+
+
+tips = {
+    "under": [
+        "You are underweight. You should consider gaining weight by following the tips below:",
+        "Eat more foods with healthy fats, such as avocados and peanut butter.",
+        "If you get full quickly, eat frequent, smaller meals throughout the day.",
+        "Add nutrient-dense snacks such as nuts, cheese, and dried fruit to your menu.",
+        "Dine with friends and family to make the experience more enjoyable.",
+        "Stay active to boost your appetite."
+    ],
+    "healthy": [
+        "You have a healthy weight. Keep it up by following the tips below:",
+        "Skip the sugary drinks, choose water or low-fat milk most of the time.",
+        "Regular physical activity burns calories and builds muscle — both of which help you look and feel good and can help keep weight off.",
+        "Watch portion sizes, big portions pile on extra calories that can cause weight gain."
+    ],
+    "over": [
+        "You are overweight. Lose weight by following the tips below:",
+        "Limit portion size to control calorie intake.",
+        "Be as physically active as you can be.",
+        "Swap out your usual foods for healthier alternatives.",
+        "Stay hydrated with water and avoid drinks with added sugar.",
+        "Set specific, realistic goals, such as three 15-minute walks per week.",
+        "If there’s a break in your healthy eating or exercise, try to get back on track as quickly as possible.",
+        "Keep track of what you eat in a food diary."
+    ],
+    "obese": [
+
+    ]
+}
+
+def suggestions(bmi, username):
+    print(f"Your BMI is {round(bmi, 1)}")
+    if bmi < 18.5:
+        print("\n".join(tips["under"]))
+        save_bmi(bmi, username)
+    elif 18.5 <= bmi < 24.9:
+        print("\n".join(tips["healthy"]))
+        save_bmi(bmi, username)
+    elif 24.9 <= bmi < 29.9:
+        print("\n".join(tips["over"]))
+        save_bmi(bmi, username)
+    else:
+        print("You are obese. You should consult a healthcare professional.")
+        save_bmi(bmi, username)
+
+def create_account():
+    while True:
+        username = input("Enter a username: ")
+        password = input("Enter a password: ")
+
+        # Check if the account already exists
+        if os.path.exists(f"{username}.txt"):
+            print("Account already exists. Please choose a different username.")
+        else:
+            # Create a text file for the user
+            with open(f"{username}.txt", "w") as file:
+                file.write(f"{username}:{password}")
+                file.write("\n" + "DATE" + "\t" + "TIME" + "\t" + "BMI")
+            print("Account created successfully!")
+            return username  # Return the username
+
+
+def login():
+    while True:
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+
+        # Check if the account file exists
+        if not os.path.exists(f"{username}.txt"):
+            print("Account does not exist. Please try again or create an account.")
+            choice = input("Do you want to create an account? (yes/ no if you want to enter again): ")
+            if choice.lower() == "yes":
+                return create_account()  # Return the username from create_account()
+            elif choice.lower() == "no":
+                return login()
+            else:
+                return None  # Return None to indicate no successful login
+        else:
+            # Read the saved username and password from the account file
+            with open(f"{username}.txt", "r") as file:
+                first_line = file.readline().strip()  # Read the first line and remove leading/trailing whitespace
+                saved_username, saved_password = first_line.split(":")
+
+            # Check if the provided username and password match the saved account
+            if username == saved_username and password == saved_password:
+                print("Login successful!")
+                return username  # Return the username
+            else:
+                print("Invalid password. Please try again.")
+                choice = input("Do you want to enter username and password again? (yes/no): ")
+                if choice.lower() == "yes":
+                    return login()  # Return the username from login()
+                elif choice.lower() == "no":
+                    return None
+
+
+def bmicalc(username):
+    print(f"Good day {username}!!")
+    while True:
+        try:
+            weight = int(input("Please enter your weight: "))
+            height = int(input("Please enter your height: "))
+            bmi = weight / ((height / 100) ** 2)
+            suggestions(bmi, username)
+            break
+        except ValueError:
+            print("Invalid Input! Please try again.")
+
+
+def save_bmi(bmi, username):
+    new_bmi = str(round(bmi, 1))
+    while True:
+        save_option = input("Do you want to save the results? (yes/no): ").lower()
+        if save_option == "yes":
+            with open(f"{username}.txt", "a") as file:
+                current_time = datetime.datetime.now().time()
+                formatted_time = current_time.strftime("%H:%M")
+                file.write("\n" + str(datetime.date.today()) + "\t" + formatted_time + "\t" + new_bmi)
+            print("Results saved successfully.")
+            break
+        elif save_option == "no":
+            print("No new results have been saved.")
+            break
+        else:
+            print("Invalid Input!")
+
+
+
+def history(username):
+    with open(f"{username}.txt", "r") as file:
+        next(file)  # Skip the first line
+        for line in file:
+            # Process the remaining lines
+            print(line.strip())
+
+def main():
+    while True:
+        choice = input("Do you want to (1) create an account or (2) login? ")
+
+        if choice == "1":
+            username = create_account()
+            bmicalc(username)
+            break
+        elif choice == "2":
+            username = login()
+            if username:
+                history(username)
+                print()
+                bmicalc(username)
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+
+if __name__ == "__main__":
+    main()
