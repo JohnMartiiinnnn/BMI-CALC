@@ -1,0 +1,350 @@
+import os
+import datetime
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+
+tips = {
+    "under": [
+        "You are underweight. You should consider gaining weight by following the tips below:",
+        "Eat more foods with healthy fats, such as avocados and peanut butter.",
+        "If you get full quickly, eat frequent, smaller meals throughout the day.",
+        "Add nutrient-dense snacks such as nuts, cheese, and dried fruit to your menu.",
+        "Dine with friends and family to make the experience more enjoyable.",
+        "Stay active to boost your appetite."
+    ],
+    "healthy": [
+        "You have a healthy weight. Keep it up by following the tips below:",
+        "Skip the sugary drinks, choose water or low-fat milk most of the time.",
+        "Regular physical activity burns calories and builds muscle that keep weight off.",
+        "Watch portion sizes, big portions pile on extra calories that can cause weight gain."
+    ],
+    "over": [
+        "You are overweight. Lose weight by following the tips below:",
+        "Limit portion size to control calorie intake.",
+        "Be as physically active as you can be.",
+        "Swap out your usual foods for healthier alternatives.",
+        "Stay hydrated with water and avoid drinks with added sugar.",
+        "Set specific, realistic goals, such as three 15-minute walks per week.",
+        "If there’s a break in your healthy eating or exercise, try to get back on track as quickly as possible.",
+        "Keep track of what you eat in a food diary."
+    ],
+    "obese": [
+
+    ]
+}
+class BMIApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("BMI Calculator")
+        self.geometry("300x150")
+        self.configure(bg="red")
+        self.resizable(False, False)
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        container = ttk.Frame(self, padding=10)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        create_account_button = ttk.Button(container, text="Create Account", command=self.create_account)
+        create_account_button.pack(pady=10)
+
+        login_button = ttk.Button(container, text="Login", command=self.login)
+        login_button.pack(pady=5)
+
+        exit_button = ttk.Button(container, text="Exit", command=self.exit_app)
+        exit_button.pack(side=tk.LEFT, pady=5)
+
+    def create_account(self):
+        create_account_window = CreateAccountWindow(self)
+        create_account_window.grab_set()
+
+    def login(self):
+        login_window = LoginWindow(self)
+        login_window.grab_set()
+
+    def exit_app(self):
+        self.destroy()
+
+
+class CreateAccountWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Create Account")
+        self.geometry("300x150")
+        self.resizable(False, False)
+        self.configure(bg="#f0f0f0")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        container = ttk.Frame(self, padding=10)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        username_label = ttk.Label(container, text="Username:")
+        username_label.pack()
+
+        username_entry = ttk.Entry(container)
+        username_entry.pack()
+
+        password_label = ttk.Label(container, text="Password:")
+        password_label.pack()
+
+        password_entry = ttk.Entry(container, show="*")
+        password_entry.pack()
+
+        create_button = ttk.Button(container, text="Create Account", command=self.create_account)
+        create_button.pack(pady=10)
+
+    def create_account(self):
+        username = self.children['!frame'].children['!entry'].get()
+        password = self.children['!frame'].children['!entry2'].get()
+
+        if os.path.exists(f"{username}.txt"):
+            messagebox.showerror("Account Error", "Account already exists. Please choose a different username.")
+        else:
+            with open(f"{username}.txt", "w") as file:
+                file.write(f"{username}:{password}")
+                file.write("\n" + "DATE" + "\t" + "TIME" + "\t" + "BMI")
+            messagebox.showinfo("Account Created", "Account created successfully!")
+            self.destroy()
+
+
+class LoginWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Login")
+        self.geometry("300x150")
+        self.resizable(False, False)
+        self.configure(bg="#f0f0f0")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        container = ttk.Frame(self, padding=10)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        username_label = ttk.Label(container, text="Username:")
+        username_label.pack()
+
+        username_entry = ttk.Entry(container)
+        username_entry.pack()
+
+        password_label = ttk.Label(container, text="Password:")
+        password_label.pack()
+
+        password_entry = ttk.Entry(container, show="*")
+        password_entry.pack()
+
+        login_button = ttk.Button(container, text="Login", command=self.login)
+        login_button.pack(pady=10)
+
+        exit_button = ttk.Button(container, text="Exit", command=self.exit_app)
+        exit_button.pack(side=tk.LEFT, pady=5)
+    def login(self):
+        username = self.children['!frame'].children['!entry'].get()
+        password = self.children['!frame'].children['!entry2'].get()
+
+        if not os.path.exists(f"{username}.txt"):
+            messagebox.showerror("Login Error", "Account does not exist. Please try again or create an account.")
+        else:
+            with open(f"{username}.txt", "r") as file:
+                first_line = file.readline().strip()
+                saved_username, saved_password = first_line.split(":")
+
+            if username == saved_username and password == saved_password:
+                messagebox.showinfo("Login Successful", "Login successful!")
+                self.destroy()
+                bmicalc_window = BMICalcWindow(self.master, username)  # Pass the username argument
+                bmicalc_window.grab_set()
+            else:
+                messagebox.showerror("Login Error", "Invalid password. Please try again.")
+
+    def exit_app(self):
+        self.master.exit_app()
+
+
+
+class BMICalcWindow(tk.Toplevel):
+    def __init__(self, master, username):
+        super().__init__(master)
+        self.title("BMI Calculator")
+        self.geometry("600x400")
+        self.resizable(False, False)
+        self.configure(bg="#f0f0f0")
+
+        self.username = username
+        self.bmi = None  # Initialize bmi as None
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        container = ttk.Frame(self, padding=10)
+        container.grid(row=0, column=0, sticky="nsew")
+
+        weight_label = ttk.Label(container, text="Weight (kg):")
+        weight_label.grid(row=0, column=0)
+
+        self.weight_entry = ttk.Entry(container)
+        self.weight_entry.grid(row=1, column=0)
+
+        height_label = ttk.Label(container, text="Height (cm):")
+        height_label.grid(row=0, column=1)
+
+        self.height_entry = ttk.Entry(container)
+        self.height_entry.grid(row=1, column=1)
+
+        calculate_button = ttk.Button(container, text="Calculate BMI", command=self.calculate_bmi)
+        calculate_button.grid(row=2, column=0, columnspan=2, pady=5)
+
+        clear_button = ttk.Button(container, text="Clear", command=self.clear_fields)
+        clear_button.grid(row=3, column=0, columnspan=2, pady=5)
+
+        self.bmi_label = ttk.Label(container, text="BMI: ")
+        self.bmi_label.grid(row=4, column=0, columnspan=2)
+
+        self.suggestion_text = tk.Text(container, height=5, font=("Arial Narrow", 10))
+        self.suggestion_text.grid(row=5, column=0, columnspan=2,sticky="nsew")
+
+        self.save_button = ttk.Button(container, text="Save Results", command=self.save_results)
+        self.save_button.grid(row=6, column=0, columnspan=2, pady=5)
+        self.save_button.configure(state='disabled')  # Disable the button initially
+
+        history_button = ttk.Button(container, text="View BMI History", command=self.show_history)
+        history_button.grid(row=7, column=0, columnspan=2, pady=5)
+
+        logout_button = ttk.Button(container, text="Logout", command=self.logout)
+        logout_button.grid(row=8, column=0, columnspan=2, pady=5, sticky="w")
+
+    def calculate_bmi(self):
+        try:
+            weight = float(self.weight_entry.get())
+            height = float(self.height_entry.get())
+            bmi = weight / ((height / 100) ** 2)
+            self.suggestions(bmi)
+            self.save_button.configure(state='enabled')  # Enable the button
+            self.bmi_label.configure(text=f"BMI: {bmi:.2f}")  # Update the BMI label
+        except ValueError:
+            messagebox.showerror("BMI Calculation Error", "Invalid input! Please enter numeric values.")
+            self.save_button.configure(state='disabled')  # Disable the button on invalid input
+
+    def suggestions(self, bmi):
+        self.suggestion_text.delete("1.0", tk.END)
+
+        suggestion_text = ""
+        if bmi < 18.5:
+            suggestion_text = "\n".join(tips["under"])
+        elif 18.5 <= bmi < 24.9:
+            suggestion_text = "\n".join(tips["healthy"])
+        elif 24.9 <= bmi < 29.9:
+            suggestion_text = "\n".join(tips["over"])
+        else:
+            suggestion_text = "You are obese. You should consult a healthcare professional."
+
+        self.suggestion_text.insert(tk.END, suggestion_text)
+
+        self.bmi = bmi  # Update the instance variable
+
+    def save_results(self):
+        if self.bmi is not None:
+            new_bmi = str(round(self.bmi, 1))
+            save_option = messagebox.askquestion("Save Results", "Do you want to save the results?")
+
+            if save_option == "yes":
+                with open(f"{self.username}.txt", "a") as file:
+                    current_time = datetime.datetime.now().time()
+                    formatted_time = current_time.strftime("%H:%M")
+                    file.write("\n" + str(datetime.date.today()) + "\t" + formatted_time + "\t" + new_bmi)
+                messagebox.showinfo("Results Saved", "Results saved successfully.")
+            else:
+                messagebox.showinfo("Results Not Saved", "Results not saved.")
+        else:
+            messagebox.showerror("Save Results Error", "No BMI calculation result available.")
+
+    def show_history(self):
+        history_window = HistoryWindow(self.username)
+        history_window.grab_set()
+
+    def clear_fields(self):
+        self.weight_entry.delete(0, tk.END)
+        self.height_entry.delete(0, tk.END)
+        self.bmi_label.configure(text="BMI: ")
+        self.suggestion_text.delete("1.0", tk.END)
+        self.save_button.configure(state='disabled')  # Disable the save button after clearing the fields
+
+    def logout(self):
+        self.destroy()  # Destroy the BMI Calculator window
+        self.master.deiconify()  # Show the login window
+
+    def destroy_all(self):
+        current = self
+        while current is not None:
+            current.destroy()
+            current = current.master
+
+
+
+
+class HistoryWindow(tk.Toplevel):
+    def __init__(self, username):
+        super().__init__()
+        self.title(f"{username}'s BMI History")
+        self.geometry("300x250")
+        self.resizable(False, True)
+        self.configure(bg="#f0f0f0")
+
+        self.username = username
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        container = ttk.Frame(self, padding=10)
+        container.pack(fill=tk.BOTH, expand=True)
+
+        history_text = tk.Text(container)
+        history_text.pack(fill="both", expand=True)
+
+        with open(f"{self.username}.txt", "r") as file:
+            next(file)
+            history_data = file.readlines()
+
+        column_widths = [15, 10, 8]  # Widths for each column
+
+        for line in history_data:
+            columns = line.strip().split("\t")
+            formatted_line = ""
+
+            for i, column in enumerate(columns):
+                formatted_column = column.ljust(column_widths[i])  # Left align column content
+                formatted_line += formatted_column
+
+            history_text.insert("end", formatted_line + "\n")
+
+        # Adjusting column alignments
+        history_text.tag_configure("center", justify="center")
+        history_text.tag_configure("right", justify="right")
+
+        # Aligning each column
+        history_text.tag_add("center", "1.0", "end-1c")  # Date column
+        history_text.tag_add("center", "1.0", "end-1c")  # Time column
+        history_text.tag_add("right", "1.0", "end-1c")  # BMI column
+
+        clear_button = ttk.Button(container, text="Clear History", command=self.clear_history)
+        clear_button.pack(pady=5)
+
+    def clear_history(self):
+        confirmation = messagebox.askyesno("Clear History", "Are you sure you want to clear the history?")
+        if confirmation:
+            with open(f"{self.username}.txt", "r+") as file:
+                lines = file.readlines()
+                file.seek(0)
+                file.truncate()
+                file.writelines(lines[:2])  # Write back the first two lines
+            messagebox.showinfo("History Cleared", "History cleared successfully.")
+
+
+
+if __name__ == "__main__":
+    app = BMIApp()
+    app.mainloop()
