@@ -51,7 +51,7 @@ class BMIApp(tk.Tk):
 
     def create_widgets(self, container):
         # Load the image
-        image = Image.open("login.png")  # Replace "your_image_file_path.jpg" with the actual image file path
+        image = Image.open("login.png")
         image = image.resize((300, 200))  # Adjust the size as needed
         photo = ImageTk.PhotoImage(image)
 
@@ -63,7 +63,7 @@ class BMIApp(tk.Tk):
         blank_label = tk.Label(container, bg="#C4D7E0", height=2)
         blank_label.grid(row=3, column=0, columnspan=3)
 
-        button_font = tkfont.Font(family="Futura-Bold", size=9)
+        button_font = tkfont.Font(family="Verdana", size=9, weight="bold")
 
         create_account_button = tk.Button(container, text="Create Account", command=self.create_account, width=14, height=1,
                                           bg="#FFF7D4", font=button_font)
@@ -192,7 +192,15 @@ class BMICalcWindow(tk.Toplevel):
     def __init__(self, master, username):
         super().__init__(master)
         self.title("BMI Calculator")
-        self.geometry("580x420")
+        self.width_in_chars = 72  # Adjust the number of characters as needed
+
+        # Define the button font as a class attribute
+        self.button_font = tkfont.Font(family="Verdana", size=9)
+        avg_char_width = self.button_font.measure("A")
+        # Calculate the width in pixels based on the average character width in the chosen font
+        window_width = self.width_in_chars * avg_char_width
+
+        self.geometry(f"{window_width}x420")
         self.resizable(False, False)
 
         container = tk.Frame(self, bg="#C4D7E0")
@@ -201,6 +209,8 @@ class BMICalcWindow(tk.Toplevel):
         self.username = username
         self.bmi = None  # Initialize bmi as None
 
+
+
         self.create_widgets(container)
 
     def create_widgets(self, container):
@@ -208,7 +218,8 @@ class BMICalcWindow(tk.Toplevel):
         container.grid_rowconfigure(0, weight=0)
         container.grid_rowconfigure(1, weight=0)
 
-        button_font = tkfont.Font(family="Futura-Bold", size=9)
+        # Define the button font
+        button_font = tkfont.Font(family="Verdana", size=9, weight="bold")
 
         weight_label = tk.Label(container, text="Weight (kg):", font=button_font, bg="#C4D7E0")
         weight_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
@@ -232,10 +243,10 @@ class BMICalcWindow(tk.Toplevel):
         self.height_entry.grid(row=1, column=1, sticky="w")
 
         calculate_button = tk.Button(container, text="Calculate BMI", command=self.calculate_bmi, font=button_font, bg="#FFF7D4")
-        calculate_button.grid(row=0, column=3, columnspan=1, sticky="w")
+        calculate_button.grid(row=0, column=3, columnspan=1,padx=10, sticky="w")
 
         clear_button = tk.Button(container, text="Clear", command=self.clear_fields, font=button_font, bg="#FFF7D4")
-        clear_button.grid(row=1, column=3, columnspan=1, pady=5, sticky="w")
+        clear_button.grid(row=1, column=3, columnspan=1, pady=5,padx=10, sticky="w")
 
         self.bmi_label = tk.Label(container, text="BMI: ", width=10, justify="left", font=button_font, bg="#C4D7E0")
         self.bmi_label.grid(row=4, column=0, pady=5, padx=5, sticky="w")
@@ -248,7 +259,7 @@ class BMICalcWindow(tk.Toplevel):
         self.save_button.configure(state='disabled')
 
         history_button = tk.Button(container, text="View BMI History", command=self.show_history, font=button_font, bg="#FFF7D4")
-        history_button.grid(row=6, column=29, pady=5, padx=5, sticky="e")
+        history_button.grid(row=6, column=29, pady=5, padx=10, sticky="e")
 
 
         blank_label = tk.Label(container, bg="#C4D7E0", height=5)
@@ -345,7 +356,7 @@ class HistoryWindow(tk.Toplevel):
         container = tk.Frame(self, padx=10, pady=10, bg="#C4D7E0" )
         container.pack(fill=tk.BOTH, expand=True)
 
-        button_font = tkfont.Font(family="Futura-Bold", size=9)
+        button_font = tkfont.Font(family="Verdana", size=9, weight="bold")
 
         history_text = tk.Text(container, height=12, font=button_font, bg="#FFF7D4")
         history_text.pack(fill="both", expand=True)
