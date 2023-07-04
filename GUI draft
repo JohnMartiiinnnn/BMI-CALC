@@ -9,30 +9,38 @@ import tkinter.font as tkfont
 tips = {
     "under": [
         "You are underweight. You should consider gaining weight by following the tips below:",
-        "Eat more foods with healthy fats, such as avocados and peanut butter.",
-        "If you get full quickly, eat frequent, smaller meals throughout the day.",
-        "Add nutrient-dense snacks such as nuts, cheese, and dried fruit to your menu.",
-        "Dine with friends and family to make the experience more enjoyable.",
-        "Stay active to boost your appetite."
+        "✓ Eat more foods with healthy fats, such as avocados and peanut butter.",
+        "✓ If you get full quickly, eat frequent, smaller meals throughout the day.",
+        "✓ Add nutrient-dense snacks such as nuts, cheese, and dried fruit to your menu.",
+        "✓ Dine with friends and family to make the experience more enjoyable.",
+        "✓ Stay active to boost your appetite."
     ],
     "healthy": [
         "You have a healthy weight. Keep it up by following the tips below:",
-        "Skip the sugary drinks, choose water or low-fat milk most of the time.",
-        "Regular physical activity burns calories and builds muscle that keep weight off.",
-        "Watch portion sizes, big portions pile on extra calories that can cause weight gain."
+        "✓ To maintain a healthy weight, enjoy regular physical activity and eat according to your needs.",
+        "✓ Make your diet mostly fruit, vegetables, cereals and other low-fat foods.",
+        "✓ Skip the sugary drinks, choose water or low-fat milk most of the time.",
+        "✓ Regular physical activity burns calories and builds muscle that keep weight off.",
+        "✓ Watch portion sizes, big portions pile on extra calories that can cause weight gain."
     ],
     "over": [
         "You are overweight. Lose weight by following the tips below:",
-        "Limit portion size to control calorie intake.",
-        "Be as physically active as you can be.",
-        "Swap out your usual foods for healthier alternatives.",
-        "Stay hydrated with water and avoid drinks with added sugar.",
-        "Set specific, realistic goals, such as three 15-minute walks per week.",
-        "If there’s a break in your healthy eating or exercise, try to get back on track as quickly as possible.",
-        "Keep track of what you eat in a food diary."
+        "✓ Limit portion size to control calorie intake.",
+        "✓ Be as physically active as you can be.",
+        "✓ Swap out your usual foods for healthier alternatives.",
+        "✓ Stay hydrated with water and avoid drinks with added sugar.",
+        "✓ Set specific, realistic goals, such as three 15-minute walks per week.",
+        "✓ If there’s a break in your healthy eating or exercise, try to get back on track as quickly as possible.",
+        "✓ Keep track of what you eat in a food diary."
     ],
     "obese": [
-
+        "You are obese and it is advised to consult a healthcare professional and follow the following tips:",
+        "✓ Increasing physical activity",
+        "✓ Limit television time, screen time, and other “sit time”",
+        "✓ Choosing healthier foods (whole grains, fruits and vegetables, healthy fats and protein sources) and beverages",
+        "✓ Eat slowly, especially when hungry",
+        "✓ Ensure adequate sleep",
+        "✓ Share your weight loss plan with someone you trust – they can help motivate you when you have a bad day"
     ]
 }
 
@@ -291,7 +299,7 @@ class BMICalcWindow(tk.Toplevel):
         elif 24.9 <= bmi < 29.9:
             suggestion_text = "\n".join(tips["over"])
         else:
-            suggestion_text = "You are obese. You should consult a healthcare professional."
+            suggestion_text = "\n".join(tips["obese"])
 
         self.suggestion_text.insert(tk.END, suggestion_text)
 
